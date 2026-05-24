@@ -1,0 +1,30 @@
+name: OpenWrt Builder
+
+on:
+  workflow_dispatch:
+
+env:
+  SSH_ACTIONS: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache curl file gawk git libncurses-dev python3 python3-distutils unzip wget zlib1g-dev
+
+      - name: Clone OpenWrt Source
+        run: |
+          git clone https://openwrt.org
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@main
+        if: env.SSH_ACTIONS == 'true'
